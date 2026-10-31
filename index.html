@@ -21,8 +21,19 @@
 	<link
 		href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap"
 		rel="stylesheet">
-	<link rel="stylesheet" href="style.css?v=prod_launch_1">
+	<link rel="stylesheet" href="style.css?v=music_update_1">
 <style id="unlockFixStyle">
+.hidden,
+.receiverFull.hidden,
+.workspace.hidden,
+#receivePage.hidden,
+#workspace.hidden,
+#resultPage.hidden,
+#homepage.hidden,
+[hidden] {
+	display: none !important;
+}
+
 #unlockArea {
 	background: #ffffff !important;
 	border: 1px solid #ebdcd5 !important;
@@ -281,11 +292,9 @@
 							<div class="field"><label>Tiêu đề lá thư</label><input id="subject" maxlength="100"
 									placeholder="Một điều nhỏ muốn gửi đến cậu..."></div>
 							<div class="field"><label>Nội dung lá thư <span
-										style="color:var(--rose)">*</span></label><textarea id="message"
-									maxlength="1400"
-									placeholder="Cậu biết không, có những điều mình đã muốn nói từ rất lâu..."></textarea>
+										style="color:var(--rose)">*</span></label><textarea id="message" maxlength="75000" placeholder="Cậu biết không, có những điều mình đã muốn nói từ rất lâu... (Hỗ trợ viết tâm sự dài lên đến 10.000 từ)"></textarea>
 								<div class="inlineRow"><span class="muted">Viết từ trái tim, không cần hoàn
-										hảo.</span><span class="muted" id="charCount">0/1400</span></div>
+										hảo.</span><span class="muted" id="charCount">0 / 10.000 từ</span></div>
 							</div>
 							<div class="field"><label>Lời kết / Chữ ký cuối thư</label><input id="closing" maxlength="80"
 									placeholder="Ví dụ: Thương mến, [Tên bạn] ♡"><span class="muted" style="font-size:12px;margin-top:4px;display:block">Tùy chỉnh lời kết hoặc chữ ký theo ý bạn (mặc định: Thương mến, [Tên bạn] ♡)</span></div>
@@ -293,26 +302,37 @@
 						<div id="step2" class="hidden">
 							<p class="muted" style="margin-bottom:18px">Chọn một phong bì phù hợp với cảm xúc của lá
 								thư.</p>
-							<div class="themeSelector"><button class="themeChoice active" data-theme="rose">
+							<div class="themeSelector"><button type="button" class="themeChoice active" data-theme="rose">
 									<div class="themeThumb templateVisual pink">
 										<div class="miniEnv"></div>
 									</div><span>Hồng dịu dàng</span>
-								</button><button class="themeChoice" data-theme="cream">
+								</button><button type="button" class="themeChoice" data-theme="cream">
 									<div class="themeThumb templateVisual cream">
 										<div class="miniEnv"></div>
 									</div><span>Cổ điển</span>
-								</button><button class="themeChoice" data-theme="lavender">
+								</button><button type="button" class="themeChoice" data-theme="lavender">
 									<div class="themeThumb templateVisual lavender">
 										<div class="miniEnv"></div>
 									</div><span>Oải hương</span>
 								</button></div>
-							<div class="field" style="margin-top:23px"><label>Thêm một ảnh kỷ niệm (xem trước trên thiết
-									bị)</label><input type="file" id="photo" accept="image/*"><span class="muted">Ảnh
-									đính kèm chỉ hiển thị trong bản xem trước, không được nhúng vào QR.</span></div>
-							<div class="field"><label>Nhạc nền khi mở thư</label><select id="music">
-									<option value="chime" selected>Giai điệu chuông gió lãng mạn</option>
-									<option value="none">Không phát nhạc</option>
-								</select></div>
+							
+							<div class="field" style="margin-top:24px">
+								<label for="music">Nhạc nền khi mở thư</label>
+								<div class="musicSelectRow">
+									<select id="music" onchange="onLetterMusicChanged()">
+										<option value="chime" selected>✨ Chuông gió ngân vang (Wind Chime)</option>
+										<option value="piano">🎹 Giai điệu dương cầm (Soft Piano)</option>
+										<option value="harp">🪕 Đàn hạc thiên đường (Dreamy Harp)</option>
+										<option value="kalimba">🎵 Hộp nhạc Kalimba (Warm Kalimba)</option>
+										<option value="waltz">💫 Khúc Valse tình yêu (Romantic Waltz)</option>
+										<option value="none">🔇 Không phát nhạc</option>
+									</select>
+									<button type="button" id="btnPreviewMusic" class="btnMusicPreview" onclick="toggleMusicPreview()" title="Nghe thử 5 giây giai điệu đã chọn">
+										▶ Nghe thử 5s
+									</button>
+								</div>
+							</div>
+							<div class="notice" style="margin-top:auto;margin-bottom:0">💡 Mẹo: Chạm vào phong bì ở khung xem trước bên phải để trải nghiệm hiệu ứng mở thư cùng giai điệu bạn đã chọn.</div>
 						</div>
 						<div id="step3" class="hidden">
 							<p class="muted">Lựa chọn cách người nhận mở lá thư — an toàn, riêng tư và đầy cảm xúc.</p>
@@ -339,7 +359,7 @@
 					<div class="previewHeader"><span>✧ Xem trước lá thư</span><span class="liveBadge">LIVE
 							PREVIEW</span></div>
 					<div class="previewStage">
-						<div id="previewEnv" class="previewEnv" onclick="togglePreview()">
+						<div id="previewEnv" class="previewEnv" onclick="openStudioPreview()">
 							<div class="envBack"></div>
 							<div class="envLetterSlip">
 								<div class="slipLine"></div>
@@ -352,6 +372,7 @@
 							<div class="envLabel" id="envLabel">Dành cho một người đặc biệt</div>
 						</div>
 						<div class="letterPaper hidden" id="previewPaper" title="Nhấn để gấp thư lại">
+							<button class="paperCloseBtn" onclick="closeStudioPreview(event)" title="Gấp thư lại" aria-label="Gấp thư lại">✕</button>
 							<div class="paperPostmark">
 								<div class="postmarkCircle">
 									<span>DEARLY</span>
@@ -365,9 +386,7 @@
 							</div>
 							<div class="paperBodyWrapper">
 								<div class="bodyText" id="previewMessage">Những lời yêu thương của bạn sẽ hiện lên ở đây...</div>
-								<img id="previewPhoto"
-									style="display:none;width:100%;border-radius:8px;margin-top:14px;max-height:160px;object-fit:cover;box-shadow:0 4px 12px rgba(0,0,0,0.08);"
-									alt="Ảnh đính kèm">
+								
 							</div>
 							<div class="paperFooter">
 								<div class="paperWaxStamp">♥</div>
@@ -1725,10 +1744,11 @@
 
 			};
 			window.QRCore = { QRCode: require("index"), L: require("QRErrorCorrectLevel").L };
-		})();</script>
+		})();
+</script>
 	<script>
 		const $ = id => document.getElementById(id);
-		let step = 1, theme = 'rose', previewOpen = false, photoData = '', shareUrl = '', letter = null, received = null, unlocked = false;
+		let step = 1, theme = 'rose', previewOpen = false, shareUrl = '', letter = null, received = null, unlocked = false;
 		const val = id => $(id) ? $(id).value.trim() : '';
 
 		function toast(t) {
@@ -1748,7 +1768,18 @@
 
 		function goHome(section) {
 			clearInterval(window.countdownTimer);
-			history.replaceState(null, '', location.pathname + location.search);
+			history.replaceState(null, '', location.pathname + (location.search || ''));
+			if ($('receivePaper')) {
+				$('receivePaper').classList.add('hidden');
+				$('receivePaper').style.display = 'none';
+			}
+			if ($('receiveEnv')) {
+				$('receiveEnv').classList.remove('hidden', 'is-opening', 'fading-out');
+				$('receiveEnv').style.opacity = '1';
+				$('receiveEnv').style.display = '';
+			}
+			if ($('replyLetterBtn')) $('replyLetterBtn').classList.add('hidden');
+			if ($('closeLetterBtn')) $('closeLetterBtn').classList.add('hidden');
 			show('homepage');
 			if (section) setTimeout(() => {
 				const el = $(section);
@@ -1758,6 +1789,7 @@
 
 		function startCreate(t) {
 			clearInterval(window.countdownTimer);
+			if (previewOpen) closeStudioPreview();
 			if (t) setTheme(t);
 			step = 1;
 			updateStep();
@@ -1767,8 +1799,20 @@
 		function setTheme(t) {
 			theme = t;
 			document.querySelectorAll('.themeChoice').forEach(b => b.classList.toggle('active', b.dataset.theme === t));
-			if ($('previewEnv')) $('previewEnv').className = 'previewEnv ' + t;
-			if ($('receiveEnv')) $('receiveEnv').className = 'previewEnv ' + t;
+			const pEnv = $('previewEnv');
+			if (pEnv) {
+				pEnv.classList.remove('rose', 'cream', 'lavender');
+				pEnv.classList.add(t);
+				if (previewOpen) {
+					pEnv.classList.add('hidden');
+					pEnv.style.display = 'none';
+				}
+			}
+			const rEnv = $('receiveEnv');
+			if (rEnv) {
+				rEnv.classList.remove('rose', 'cream', 'lavender');
+				rEnv.classList.add(t);
+			}
 			const ps = document.querySelector('.previewStage');
 			if (ps) {
 				ps.classList.remove('rose', 'cream', 'lavender');
@@ -1793,10 +1837,17 @@
 		}
 
 		function nextStep() {
-			if (step === 1 && !val('message')) {
-				toast('Hãy viết nội dung lá thư trước nhé ♡');
-				$('message').focus();
-				return;
+			if (step === 1) {
+				if (!val('message')) {
+					toast('Hãy viết nội dung lá thư trước nhé ♡');
+					$('message').focus();
+					return;
+				}
+				if (countWords(val('message')) > 10000) {
+					toast('Nội dung lá thư dài quá 10.000 từ rồi, bạn hãy rút gọn bớt một chút nhé ♡');
+					$('message').focus();
+					return;
+				}
 			}
 			if (step < 3) {
 				step++;
@@ -1806,26 +1857,42 @@
 			generate();
 		}
 
+		function countWords(str) {
+			const trimmed = (str || '').trim();
+			return trimmed ? trimmed.split(/\s+/).length : 0;
+		}
+
 		function syncPreview() {
-			$('charCount').textContent = $('message').value.length + '/1400';
+			const wordCount = countWords(val('message'));
+			if ($('charCount')) {
+				$('charCount').textContent = wordCount.toLocaleString('vi-VN') + ' / 10.000 từ';
+				if (wordCount > 10000) {
+					$('charCount').style.color = '#c93b58';
+					$('charCount').style.fontWeight = 'bold';
+				} else {
+					$('charCount').style.color = '';
+					$('charCount').style.fontWeight = '';
+				}
+			}
 			$('envLabel').textContent = 'Dành cho ' + (val('receiver') || 'một người đặc biệt');
 			$('previewTitle').textContent = val('subject') || 'Một lời nhắn cho cậu';
 			$('previewMessage').textContent = val('message') || 'Những lời yêu thương của bạn sẽ hiện lên ở đây...';
 			const defaultSign = 'Thương mến, ' + (val('sender') || 'một người đặc biệt') + ' ♡';
 			$('previewSign').textContent = val('closing') || defaultSign;
+
 			if ($('closing') && !val('closing')) {
 				$('closing').placeholder = val('sender') ? ('Thương mến, ' + val('sender') + ' ♡') : 'Ví dụ: Thương mến, [Tên bạn] ♡';
 			}
 		}
 		['sender', 'receiver', 'subject', 'message', 'closing'].forEach(id => $(id) && $(id).addEventListener('input', syncPreview));
 
-		function togglePreview() {
-			previewOpen = !previewOpen;
-			$('previewEnv').classList.toggle('hidden', previewOpen);
-			$('previewPaper').classList.toggle('hidden', !previewOpen);
-			$('previewHint').textContent = previewOpen ? '♡ Nhấn vào lá thư để gấp lại phong bì' : '✉ Nhấn vào phong bì để mở xem trước';
+		if ($('previewPaper')) {
+			$('previewPaper').onclick = (e) => {
+				if (e.target && e.target.tagName !== 'BUTTON' && e.target.tagName !== 'A') {
+					closeStudioPreview(e);
+				}
+			};
 		}
-		if ($('previewPaper')) $('previewPaper').onclick = togglePreview;
 
 		if ($('photo')) {
 			$('photo').onchange = e => {
@@ -1951,16 +2018,39 @@
 				d: access === 'date' ? val('openAt') : ''
 			};
 			shareUrl = location.href.split('#')[0] + '#letter=' + pack(letter);
+			let qrSuccess = true;
 			try {
 				drawQR(shareUrl);
 			} catch (e) {
-				toast('Nội dung quá dài để tạo mã QR, hãy rút ngắn đôi chút nhé.');
-				return;
+				qrSuccess = false;
+				const canvas = $('qrCanvas');
+				if (canvas) {
+					const ctx = canvas.getContext('2d');
+					canvas.width = 280;
+					canvas.height = 280;
+					ctx.fillStyle = '#fffdfa';
+					ctx.fillRect(0, 0, 280, 280);
+					ctx.strokeStyle = '#ebd9d2';
+					ctx.lineWidth = 2;
+					ctx.strokeRect(12, 12, 256, 256);
+					ctx.fillStyle = '#9b4258';
+					ctx.font = 'bold 15px "DM Sans", sans-serif';
+					ctx.textAlign = 'center';
+					ctx.fillText('💌 Lá thư tâm sự dài', 140, 100);
+					ctx.fillStyle = '#6e5860';
+					ctx.font = '13px "DM Sans", sans-serif';
+					ctx.fillText('Nội dung vượt giới hạn mã QR.', 140, 138);
+					ctx.fillText('Bạn hãy dùng Link chia sẻ', 140, 162);
+					ctx.fillText('hoặc nút Chia sẻ bên dưới nhé ♡', 140, 186);
+				}
 			}
 			$('resultTitle').textContent = letter.t || 'Một lá thư dành riêng';
 			$('resultTo').textContent = 'Gửi đến ' + (letter.r || 'một người đặc biệt');
 			$('resultUrl').textContent = shareUrl;
 			show('resultPage');
+			if (!qrSuccess) {
+				toast('Lá thư dài: Hãy sao chép liên kết bên dưới để gửi cho người nhận nhé ♡');
+			}
 		}
 
 		function downloadQR() {
@@ -2025,32 +2115,371 @@
 			window.countdownTimer = setInterval(update, 1000);
 		}
 
-		function playMusicBoxChime() {
-			try {
-				const AudioCtx = window.AudioContext || window.webkitAudioContext;
-				if (!AudioCtx) return;
-				const ctx = new AudioCtx();
-				const notes = [
-					{ f: 523.25, t: 0.0, d: 1.2 },
-					{ f: 659.25, t: 0.16, d: 1.2 },
-					{ f: 783.99, t: 0.32, d: 1.4 },
-					{ f: 987.77, t: 0.48, d: 1.6 },
-					{ f: 1046.50, t: 0.64, d: 2.2 }
-				];
-				notes.forEach(n => {
-					const osc = ctx.createOscillator();
-					const gain = ctx.createGain();
-					osc.type = 'sine';
-					osc.frequency.setValueAtTime(n.f, ctx.currentTime + n.t);
-					gain.gain.setValueAtTime(0.0001, ctx.currentTime + n.t);
-					gain.gain.exponentialRampToValueAtTime(0.08, ctx.currentTime + n.t + 0.02);
-					gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + n.t + n.d);
-					osc.connect(gain);
-					gain.connect(ctx.destination);
-					osc.start(ctx.currentTime + n.t);
-					osc.stop(ctx.currentTime + n.t + n.d);
+						/* ==========================================================================
+		   DEARLY AUDIO ENGINE (ROBUST AMBIENT & FULL LETTER SONGS)
+		   ========================================================================== */
+		try { localStorage.removeItem('dearly_ambient'); } catch(e){}
+		const DearlyAudio = {
+			ctx: null,
+			previewTimerInterval: null,
+			activeLetterNodes: [],
+
+			async initCtx() {
+				if (!this.ctx) {
+					const AudioCtx = window.AudioContext || window.webkitAudioContext;
+					if (AudioCtx) this.ctx = new AudioCtx();
+				}
+				if (this.ctx && this.ctx.state === 'suspended') {
+					try { await this.ctx.resume(); } catch (e) {}
+				}
+				return this.ctx;
+			},
+
+			playTone(freq, time, duration, type = 'sine', maxGain = 0.12, overtone = false) {
+				if (!this.ctx) return;
+				const now = this.ctx.currentTime;
+				const startTime = now + time;
+
+				const osc = this.ctx.createOscillator();
+				const gain = this.ctx.createGain();
+				osc.type = type;
+				osc.frequency.setValueAtTime(freq, startTime);
+
+				gain.gain.setValueAtTime(0.0001, startTime);
+				gain.gain.exponentialRampToValueAtTime(maxGain, startTime + 0.03);
+				gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+
+				osc.connect(gain);
+				gain.connect(this.ctx.destination);
+
+				osc.start(startTime);
+				osc.stop(startTime + duration);
+				this.activeLetterNodes.push(osc);
+
+				if (overtone) {
+					const osc2 = this.ctx.createOscillator();
+					const gain2 = this.ctx.createGain();
+					osc2.type = 'sine';
+					osc2.frequency.setValueAtTime(freq * 2, startTime);
+
+					gain2.gain.setValueAtTime(0.0001, startTime);
+					gain2.gain.exponentialRampToValueAtTime(maxGain * 0.35, startTime + 0.02);
+					gain2.gain.exponentialRampToValueAtTime(0.0001, startTime + duration * 0.65);
+
+					osc2.connect(gain2);
+					gain2.connect(this.ctx.destination);
+
+					osc2.start(startTime);
+					osc2.stop(startTime + duration * 0.65);
+					this.activeLetterNodes.push(osc2);
+				}
+			},
+
+			// FULL, COMPLETE SONGS FOR LETTER RECIPIENTS (~16 to 18 seconds of enchantment)
+			melodies: {
+				chime(pt) {
+					const notes = [
+						// Opening sparkling sweep
+						{ f: 523.25, t: 0.0, d: 1.4 },  // C5
+						{ f: 659.25, t: 0.22, d: 1.4 }, // E5
+						{ f: 783.99, t: 0.44, d: 1.6 }, // G5
+						{ f: 987.77, t: 0.66, d: 1.8 }, // B5
+						{ f: 1046.50, t: 0.88, d: 2.2 },// C6
+						{ f: 1318.51, t: 1.30, d: 2.5 },// E6
+						// Verse 1
+						{ f: 880.00, t: 2.2, d: 1.5 },  // A5
+						{ f: 783.99, t: 2.8, d: 1.5 },  // G5
+						{ f: 659.25, t: 3.4, d: 1.6 },  // E5
+						{ f: 587.33, t: 4.0, d: 1.6 },  // D5
+						{ f: 523.25, t: 4.6, d: 2.2 },  // C5
+						// Verse 2
+						{ f: 659.25, t: 5.6, d: 1.5 },  // E5
+						{ f: 783.99, t: 6.2, d: 1.5 },  // G5
+						{ f: 987.77, t: 6.8, d: 1.8 },  // B5
+						{ f: 1174.66, t: 7.4, d: 2.0 }, // D6
+						{ f: 1046.50, t: 8.2, d: 2.4 }, // C6
+						// Outro cadence
+						{ f: 880.00, t: 9.4, d: 1.6 },  // A5
+						{ f: 783.99, t: 10.2, d: 1.8 }, // G5
+						{ f: 659.25, t: 11.0, d: 2.0 }, // E5
+						{ f: 587.33, t: 11.8, d: 2.2 }, // D5
+						{ f: 523.25, t: 12.6, d: 4.5 }  // C5
+					];
+					notes.forEach(n => pt(n.f, n.t, n.d, 'sine', 0.12, true));
+				},
+
+				piano(pt) {
+					const notes = [
+						// Opening rich piano arpeggio
+						{ f: 261.63, t: 0.0, d: 2.4, v: 0.10 }, // C4
+						{ f: 329.63, t: 0.18, d: 2.2, v: 0.10 },// E4
+						{ f: 392.00, t: 0.36, d: 2.2, v: 0.11 },// G4
+						{ f: 523.25, t: 0.54, d: 2.4, v: 0.12 },// C5
+						{ f: 659.25, t: 0.72, d: 2.4, v: 0.12 },// E5
+						{ f: 783.99, t: 1.10, d: 2.8, v: 0.13 },// G5
+						// Lyrical theme
+						{ f: 659.25, t: 2.0, d: 1.8, v: 0.11 }, // E5
+						{ f: 587.33, t: 2.6, d: 1.8, v: 0.11 }, // D5
+						{ f: 523.25, t: 3.2, d: 2.0, v: 0.12 }, // C5
+						{ f: 493.88, t: 3.8, d: 2.0, v: 0.10 }, // B4
+						{ f: 440.00, t: 4.4, d: 2.2, v: 0.11 }, // A4
+						// Sub-theme
+						{ f: 349.23, t: 5.4, d: 2.0, v: 0.10 }, // F4
+						{ f: 440.00, t: 6.0, d: 2.0, v: 0.11 }, // A4
+						{ f: 523.25, t: 6.6, d: 2.2, v: 0.12 }, // C5
+						{ f: 659.25, t: 7.2, d: 2.2, v: 0.12 }, // E5
+						{ f: 587.33, t: 7.9, d: 2.4, v: 0.11 }, // D5
+						// Romantic climax & warm finish
+						{ f: 783.99, t: 9.0, d: 2.2, v: 0.13 }, // G5
+						{ f: 880.00, t: 9.8, d: 2.4, v: 0.13 }, // A5
+						{ f: 1046.50, t: 10.6, d: 2.6, v: 0.14 },// C6
+						{ f: 783.99, t: 11.6, d: 2.6, v: 0.12 }, // G5
+						{ f: 659.25, t: 12.6, d: 2.8, v: 0.11 }, // E5
+						{ f: 523.25, t: 13.6, d: 4.5, v: 0.12 }  // C5
+					];
+					notes.forEach(n => pt(n.f, n.t, n.d, 'triangle', n.v || 0.11, true));
+				},
+
+				harp(pt) {
+					const notes = [
+						// Glissando sweep
+						{ f: 392.00, t: 0.0, d: 2.0 },  // G4
+						{ f: 493.88, t: 0.14, d: 2.0 }, // B4
+						{ f: 587.33, t: 0.28, d: 2.0 }, // D5
+						{ f: 783.99, t: 0.42, d: 2.2 }, // G5
+						{ f: 987.77, t: 0.56, d: 2.4 }, // B5
+						{ f: 1174.66, t: 0.72, d: 2.6 },// D6
+						{ f: 1567.98, t: 0.90, d: 3.4 },// G6
+						// Melody 1
+						{ f: 1318.51, t: 2.0, d: 1.8 }, // E6
+						{ f: 1174.66, t: 2.6, d: 1.8 }, // D6
+						{ f: 987.77, t: 3.2, d: 2.0 },  // B5
+						{ f: 783.99, t: 3.8, d: 2.2 },  // G5
+						{ f: 880.00, t: 4.5, d: 2.0 },  // A5
+						{ f: 987.77, t: 5.2, d: 2.4 },  // B5
+						// Second flourish
+						{ f: 587.33, t: 6.2, d: 1.8 },  // D5
+						{ f: 783.99, t: 6.8, d: 2.0 },  // G5
+						{ f: 987.77, t: 7.4, d: 2.2 },  // B5
+						{ f: 1174.66, t: 8.0, d: 2.4 }, // D6
+						{ f: 1046.50, t: 8.8, d: 2.6 }, // C6
+						// Heavenly resolution
+						{ f: 987.77, t: 9.8, d: 2.6 },  // B5
+						{ f: 783.99, t: 10.8, d: 3.0 }, // G5
+						{ f: 587.33, t: 11.8, d: 3.5 }, // D5
+						{ f: 392.00, t: 12.8, d: 4.5 }  // G4
+					];
+					notes.forEach(n => pt(n.f, n.t, n.d, 'sine', 0.10, false));
+				},
+
+				kalimba(pt) {
+					const notes = [
+						// Opening phrase
+						{ f: 329.63, t: 0.0, d: 1.6 },  // E4
+						{ f: 415.30, t: 0.20, d: 1.6 }, // G#4
+						{ f: 493.88, t: 0.40, d: 1.7 }, // B4
+						{ f: 659.25, t: 0.60, d: 1.9 }, // E5
+						{ f: 830.61, t: 0.85, d: 2.4 }, // G#5
+						{ f: 987.77, t: 1.25, d: 2.8 }, // B5
+						// Nostalgic melody
+						{ f: 830.61, t: 2.1, d: 1.6 },  // G#5
+						{ f: 659.25, t: 2.6, d: 1.6 },  // E5
+						{ f: 554.37, t: 3.1, d: 1.6 },  // C#5
+						{ f: 493.88, t: 3.6, d: 1.8 },  // B4
+						{ f: 415.30, t: 4.2, d: 2.0 },  // G#4
+						// Second phrase
+						{ f: 493.88, t: 5.0, d: 1.6 },  // B4
+						{ f: 554.37, t: 5.5, d: 1.6 },  // C#5
+						{ f: 659.25, t: 6.0, d: 1.8 },  // E5
+						{ f: 830.61, t: 6.6, d: 2.0 },  // G#5
+						{ f: 739.99, t: 7.3, d: 2.2 },  // F#5
+						// Outro
+						{ f: 830.61, t: 8.3, d: 2.0 },  // G#5
+						{ f: 987.77, t: 9.0, d: 2.2 },  // B5
+						{ f: 1108.73, t: 9.8, d: 2.4 }, // C#6
+						{ f: 987.77, t: 10.6, d: 2.4 }, // B5
+						{ f: 830.61, t: 11.4, d: 2.6 }, // G#5
+						{ f: 659.25, t: 12.3, d: 3.0 }, // E5
+						{ f: 493.88, t: 13.2, d: 4.0 }  // B4
+					];
+					notes.forEach(n => pt(n.f, n.t, n.d, 'triangle', 0.12, true));
+				},
+
+				waltz(pt) {
+					const notes = [
+						{ f: 293.66, t: 0.0, d: 1.8 },   // D4
+						{ f: 440.00, t: 0.28, d: 1.4 },  // A4
+						{ f: 587.33, t: 0.52, d: 1.6 },  // D5
+						{ f: 554.37, t: 0.85, d: 1.6 },  // C#5
+						{ f: 493.88, t: 1.15, d: 1.8 },  // B4
+						{ f: 440.00, t: 1.50, d: 2.8 },  // A4
+						{ f: 392.00, t: 2.3, d: 1.8 },   // G4
+						{ f: 493.88, t: 2.6, d: 1.5 },   // B4
+						{ f: 587.33, t: 2.9, d: 1.8 },   // D5
+						{ f: 659.25, t: 3.5, d: 2.0 },   // E5
+						{ f: 587.33, t: 4.1, d: 2.0 },   // D5
+						{ f: 493.88, t: 4.7, d: 2.2 },   // B4
+						{ f: 440.00, t: 5.5, d: 2.0 },   // A4
+						{ f: 554.37, t: 5.8, d: 1.6 },   // C#5
+						{ f: 659.25, t: 6.1, d: 1.8 },   // E5
+						{ f: 739.99, t: 6.8, d: 2.2 },   // F#5
+						{ f: 659.25, t: 7.5, d: 2.2 },   // E5
+						{ f: 587.33, t: 8.2, d: 2.5 },   // D5
+						{ f: 440.00, t: 9.2, d: 2.0 },   // A4
+						{ f: 493.88, t: 9.9, d: 2.0 },   // B4
+						{ f: 554.37, t: 10.6, d: 2.2 },  // C#5
+						{ f: 587.33, t: 11.4, d: 3.0 },  // D5
+						{ f: 880.00, t: 12.4, d: 4.2 }   // A5
+					];
+					notes.forEach(n => pt(n.f, n.t, n.d, 'sine', 0.11, true));
+				}
+			},
+
+			async playLetterMelody(key, isPreview = false) {
+				if (!key || key === 'none') return;
+				const ctx = await this.initCtx();
+				if (!ctx) return;
+				this.stopLetterMelody();
+				const fn = this.melodies[key] || this.melodies['chime'];
+				fn((f, t, d, ty, g, ov) => this.playTone(f, t, d, ty, g, ov));
+			},
+
+			stopLetterMelody() {
+				this.activeLetterNodes.forEach(node => {
+					try { node.stop(); } catch (e) {}
 				});
-			} catch (e) {}
+				this.activeLetterNodes = [];
+			},
+
+			
+		};
+
+		function playMusicBoxChime() {
+			DearlyAudio.playLetterMelody('chime', false);
+		}
+
+		
+		/* 5-second Music Preview Controller */
+		let isPreviewingMusic = false;
+		let previewCountdown = 5;
+		let previewTimerInterval = null;
+
+		async function toggleMusicPreview() {
+			const sel = $('music');
+			const key = sel ? sel.value : 'chime';
+			const btn = $('btnPreviewMusic');
+
+			if (isPreviewingMusic) {
+				stopMusicPreview();
+				return;
+			}
+
+			if (key === 'none') {
+				toast('Lựa chọn hiện tại là "Không phát nhạc" ♡');
+				return;
+			}
+
+			await DearlyAudio.initCtx();
+			isPreviewingMusic = true;
+			previewCountdown = 5;
+			if (btn) {
+				btn.classList.add('is-playing');
+				btn.textContent = `⏹ Dừng (${previewCountdown}s)`;
+			}
+
+			DearlyAudio.playLetterMelody(key, true);
+			const musicNames = {
+				chime: 'Chuông gió ngân vang',
+				piano: 'Giai điệu dương cầm',
+				harp: 'Đàn hạc thiên đường',
+				kalimba: 'Hộp nhạc Kalimba',
+				waltz: 'Khúc Valse tình yêu'
+			};
+			toast(`🎶 Đang nghe thử 5s: ${musicNames[key] || key}`);
+
+			previewTimerInterval = setInterval(() => {
+				previewCountdown--;
+				if (previewCountdown <= 0) {
+					stopMusicPreview();
+				} else if (btn) {
+					btn.textContent = `⏹ Dừng (${previewCountdown}s)`;
+				}
+			}, 1000);
+		}
+
+		function stopMusicPreview() {
+			isPreviewingMusic = false;
+			clearInterval(previewTimerInterval);
+			DearlyAudio.stopLetterMelody();
+			const btn = $('btnPreviewMusic');
+			if (btn) {
+				btn.classList.remove('is-playing');
+				btn.textContent = '▶ Nghe thử 5s';
+			}
+		}
+
+		function onLetterMusicChanged() {
+			if (isPreviewingMusic) stopMusicPreview();
+		}
+
+		/* Studio Letter Preview with Envelope Unfolding Animation */
+		let isOpeningStudio = false;
+		async function openStudioPreview() {
+			if (isOpeningStudio) return;
+			isOpeningStudio = true;
+			const env = $('previewEnv');
+			if (!env) return;
+			env.classList.add('is-opening');
+
+			await DearlyAudio.initCtx();
+			const selectedMusic = ($('music') && $('music').value) ? $('music').value : 'chime';
+			DearlyAudio.playLetterMelody(selectedMusic, false);
+
+			setTimeout(() => {
+				env.classList.add('fading-out');
+			}, 550);
+
+			setTimeout(() => {
+				env.classList.add('hidden');
+				env.style.display = 'none';
+				env.classList.remove('is-opening', 'fading-out');
+				const paper = $('previewPaper');
+				if (paper) {
+					paper.classList.remove('hidden');
+					paper.style.display = 'block';
+				}
+				previewOpen = true;
+				if ($('previewHint')) $('previewHint').textContent = '✉ Nhấn vào lá thư hoặc nút ✕ để gấp lại';
+				isOpeningStudio = false;
+			}, 820);
+		}
+
+		function closeStudioPreview(e) {
+			if (e) e.stopPropagation();
+			DearlyAudio.stopLetterMelody();
+			const paper = $('previewPaper');
+			if (paper) {
+				paper.classList.add('hidden');
+				paper.style.display = 'none';
+			}
+			const env = $('previewEnv');
+			if (env) {
+				env.classList.remove('hidden', 'is-opening', 'fading-out');
+				env.style.display = '';
+				env.style.opacity = '1';
+			}
+			previewOpen = false;
+			if ($('previewHint')) $('previewHint').textContent = '✉ Nhấn vào phong bì để mở xem trước';
+			toast('Đã gấp lá thư lại ♡');
+		}
+
+		function togglePreview() {
+			const env = $('previewEnv');
+			if (env && !env.classList.contains('hidden') && env.style.display !== 'none') {
+				openStudioPreview();
+			} else {
+				closeStudioPreview();
+			}
 		}
 
 		function renderReceived(l, demo = false) {
@@ -2067,7 +2496,9 @@
 				rs.classList.add(th);
 			}
 			$('receiveEnv').classList.remove('hidden', 'is-opening', 'fading-out');
+			$('receiveEnv').style.display = '';
 			$('receivePaper').classList.add('hidden');
+			$('receivePaper').style.display = 'none';
 			if ($('replyLetterBtn')) $('replyLetterBtn').classList.add('hidden');
 			if ($('closeLetterBtn')) $('closeLetterBtn').classList.add('hidden');
 
@@ -2165,17 +2596,17 @@
 			} catch (e) {}
 		}
 
-		let isOpeningLetter = false;
-		function openReceived() {
+				let isOpeningLetter = false;
+		async function openReceived() {
 			if (!unlocked) { toast('Lá thư chưa thể mở lúc này'); return; }
 			if (isOpeningLetter) return;
 			isOpeningLetter = true;
 			const env = $('receiveEnv');
 			env.classList.add('is-opening');
 
-			if ((received && received.mu === 'chime') || ($('music') && $('music').value === 'chime')) {
-				playMusicBoxChime();
-			}
+			await DearlyAudio.initCtx();
+			const chosenMusic = (received && received.mu) ? received.mu : (($('music') && $('music').value) ? $('music').value : 'chime');
+			DearlyAudio.playLetterMelody(chosenMusic, false);
 
 			setTimeout(() => {
 				env.classList.add('fading-out');
@@ -2183,19 +2614,32 @@
 
 			setTimeout(() => {
 				env.classList.add('hidden');
+				env.style.display = 'none';
 				env.classList.remove('is-opening', 'fading-out');
-				$('receivePaper').classList.remove('hidden');
+				const rPaper = $('receivePaper');
+				if (rPaper) {
+					rPaper.classList.remove('hidden');
+					rPaper.style.display = 'block';
+				}
 				if ($('replyLetterBtn')) $('replyLetterBtn').classList.remove('hidden');
 				if ($('closeLetterBtn')) $('closeLetterBtn').classList.remove('hidden');
 				isOpeningLetter = false;
-				createHeartBurst($('receivePaper'));
+				// Heart burst removed as requested for clean & elegant reading
 			}, 820);
 		}
 
 		function closeReceived() {
-			$('receivePaper').classList.add('hidden');
+			const rPaper = $('receivePaper');
+			if (rPaper) {
+				rPaper.classList.add('hidden');
+				rPaper.style.display = 'none';
+			}
 			const env = $('receiveEnv');
-			env.classList.remove('hidden', 'is-opening', 'fading-out');
+			if (env) {
+				env.classList.remove('hidden', 'is-opening', 'fading-out');
+				env.style.display = '';
+				env.style.opacity = '1';
+			}
 			if ($('replyLetterBtn')) $('replyLetterBtn').classList.add('hidden');
 			if ($('closeLetterBtn')) $('closeLetterBtn').classList.add('hidden');
 			toast('Đã gấp lá thư lại ♡');
@@ -2210,16 +2654,26 @@
 					renderReceived(unpack(location.hash.slice(8)));
 				} catch (e) {
 					toast('Không thể đọc dữ liệu từ mã thư này');
+					show('homepage');
 				}
 			} else if (location.hash === '#create' || location.hash === '#workspace' || location.hash === '#studio') {
 				startCreate();
-			} else if (location.hash === '#home' || location.hash === '') {
+			} else {
 				show('homepage');
+				if (location.hash && location.hash !== '#home' && location.hash !== '#') {
+					const targetId = location.hash.slice(1);
+					const el = document.getElementById(targetId);
+					if (el) setTimeout(() => el.scrollIntoView({ behavior: 'smooth' }), 70);
+				}
 			}
 		}
 		window.addEventListener('hashchange', checkHash);
 		checkHash();
+
+		
 	</script>
+
+	
 </body>
 
 </html>

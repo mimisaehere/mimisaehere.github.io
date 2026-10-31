@@ -641,7 +641,7 @@ p {
 	display: grid;
 	grid-template-columns: minmax(0, 1.08fr) minmax(340px, .92fr);
 	gap: 26px;
-	align-items: start
+	align-items: stretch;
 }
 
 .editor,
@@ -650,7 +650,9 @@ p {
 	border: 1px solid var(--line);
 	border-radius: 16px;
 	box-shadow: var(--shadow);
-	overflow: hidden
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
 }
 
 .editorTop {
@@ -658,7 +660,8 @@ p {
 	border-bottom: 1px solid var(--line);
 	display: flex;
 	align-items: center;
-	justify-content: space-between
+	justify-content: space-between;
+	flex-shrink: 0;
 }
 
 .editorTop strong {
@@ -682,7 +685,18 @@ p {
 }
 
 .editorBody {
-	padding: 27px 28px
+	padding: 27px 28px;
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+}
+
+#step1:not(.hidden),
+#step2:not(.hidden),
+#step3:not(.hidden) {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
 }
 
 .field {
@@ -733,7 +747,9 @@ p {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	gap: 10px
+	gap: 10px;
+	margin-top: auto;
+	flex-shrink: 0;
 }
 
 .muted {
@@ -744,7 +760,8 @@ p {
 .themeSelector {
 	display: grid;
 	grid-template-columns: repeat(3, 1fr);
-	gap: 12px
+	gap: 12px;
+	margin-bottom: 24px;
 }
 
 .themeChoice {
@@ -824,7 +841,8 @@ p {
 	justify-content: space-between;
 	border-bottom: 1px solid var(--line);
 	font-size: 13px;
-	font-weight: 700
+	font-weight: 700;
+	flex-shrink: 0;
 }
 
 .liveBadge {
@@ -836,13 +854,17 @@ p {
 }
 
 .previewStage {
+	flex: 1;
 	min-height: 440px;
 	background: radial-gradient(circle at 50% 55%, #f2e2df, #fbf3ef 72%);
 	padding: 28px 20px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
+	display: grid;
+	place-items: center;
 	position: relative;
+}
+
+.previewStage > * {
+	grid-area: 1 / 1;
 }
 
 .previewEnv {
@@ -1092,7 +1114,10 @@ p {
 	padding: 17px 24px;
 	text-align: center;
 	color: #918087;
-	font-size: 12px
+	font-size: 12px;
+	border-top: 1px solid #f6ece8;
+	flex-shrink: 0;
+	margin-top: auto;
 }
 
 .inlineRow {
@@ -2542,6 +2567,10 @@ select:focus {
 	min-height: 300px !important;
 }
 
+.receiverStage > * {
+	grid-area: 1 / 1 !important;
+}
+
 .previewEnv {
 	height: 204px !important;
 	width: 310px !important;
@@ -2775,13 +2804,17 @@ select:focus {
    ========================================================================== */
 
 .receiverFull {
-	background: radial-gradient(circle at 50% 20%, #fdf0f2 0%, #fef8f5 55%, #fbf3f5 100%) !important;
-	min-height: 100vh !important;
-	display: flex !important;
-	align-items: center !important;
-	justify-content: center !important;
-	padding: 28px 16px 36px 16px !important;
-	box-sizing: border-box !important;
+	background: radial-gradient(circle at 50% 20%, #fdf0f2 0%, #fef8f5 55%, #fbf3f5 100%);
+	min-height: 100vh;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 28px 16px 36px 16px;
+	box-sizing: border-box;
+}
+
+.receiverFull.hidden {
+	display: none !important;
 }
 
 .receiverCard {
@@ -3180,4 +3213,168 @@ select:focus {
 		max-width: 230px;
 		margin: 0 auto;
 	}
+}
+
+/* ==========================================================================
+   GLOBAL DISPLAY & VISIBILITY OVERRIDES (CRITICAL FIX)
+   ========================================================================== */
+.hidden,
+.receiverFull.hidden,
+.workspace.hidden,
+#receivePage.hidden,
+#workspace.hidden,
+#resultPage.hidden,
+#homepage.hidden,
+.receivePaper.hidden,
+.letterPaper.hidden,
+#previewPaper.hidden,
+#receivePaper.hidden,
+#previewEnv.hidden,
+.previewEnv.hidden,
+#receiveEnv.hidden,
+#closeLetterBtn.hidden,
+#replyLetterBtn.hidden,
+#unlockArea.hidden,
+[hidden] {
+	display: none !important;
+}
+
+/* ==========================================================================
+   MUSIC & AUDIO ENHANCEMENTS (BACKGROUND AMBIENCE & 5S PREVIEW)
+   ========================================================================== */
+
+/* Music Select Field with 5s Preview Button */
+.musicSelectRow {
+	display: flex;
+	gap: 10px;
+	align-items: center;
+	width: 100%;
+}
+
+.musicSelectRow select {
+	flex: 1;
+	min-width: 0;
+	height: 44px;
+}
+
+.btnMusicPreview {
+	white-space: nowrap;
+	padding: 0 16px;
+	height: 44px;
+	box-sizing: border-box;
+	font-size: 13px;
+	font-weight: 700;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	border-radius: 10px;
+	border: 1px solid #e2cad2;
+	background: #ffffff;
+	color: #7a3e50;
+	cursor: pointer;
+	transition: all 0.22s ease;
+	flex-shrink: 0;
+}
+
+.btnMusicPreview:hover {
+	background: #fff3f6;
+	border-color: #c05472;
+	color: #9c3350;
+	transform: translateY(-1px);
+}
+
+.btnMusicPreview.is-playing {
+	background: linear-gradient(135deg, #fdf0f4 0%, #fde3ea 100%);
+	border-color: #c05472;
+	color: #a23854;
+	box-shadow: 0 0 0 3px rgba(192, 84, 114, 0.16);
+	animation: pulseBorder 1.2s infinite ease-in-out;
+}
+
+@keyframes pulseBorder {
+	0%, 100% { transform: scale(1); }
+	50% { transform: scale(1.02); }
+}
+
+
+
+/* Studio Preview Paper Close Button */
+.letterPaper .paperCloseBtn {
+	position: absolute !important;
+	top: 16px !important;
+	right: 16px !important;
+	width: 30px !important;
+	height: 30px !important;
+	border-radius: 50% !important;
+	background: #fff8f9 !important;
+	border: 1px solid #ebd0d7 !important;
+	color: #924357 !important;
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	font-size: 13px !important;
+	font-weight: 700 !important;
+	cursor: pointer !important;
+	box-shadow: 0 2px 8px rgba(146, 67, 87, 0.12) !important;
+	transition: all 0.22s ease !important;
+	z-index: 10 !important;
+}
+
+.letterPaper .paperCloseBtn:hover {
+	background: #c05472 !important;
+	color: #ffffff !important;
+	border-color: #c05472 !important;
+	transform: rotate(90deg) scale(1.08) !important;
+}
+
+/* Studio Preview Paper Child Animations (Staggered Text Reveal) */
+.letterPaper:not(.hidden) .paperTitle {
+	animation: textSoftFadeIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.14s backwards !important;
+}
+
+.letterPaper:not(.hidden) .bodyText {
+	animation: textSoftFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.22s backwards !important;
+}
+
+.letterPaper:not(.hidden) .sign {
+	animation: textSoftFadeIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.32s backwards !important;
+}
+
+.previewStage .previewEnv:not(.hidden) {
+	animation: envFoldIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+
+@media (max-width: 480px) {
+	.musicSelectRow {
+		flex-direction: column;
+		align-items: stretch;
+	}
+	.btnMusicPreview {
+		width: 100%;
+	}
+}
+
+/* ==========================================================================
+   GLOBAL DISPLAY & VISIBILITY OVERRIDES (CRITICAL FIX)
+   ========================================================================== */
+.hidden,
+.receiverFull.hidden,
+.workspace.hidden,
+#receivePage.hidden,
+#workspace.hidden,
+#resultPage.hidden,
+#homepage.hidden,
+.receivePaper.hidden,
+.letterPaper.hidden,
+#previewPaper.hidden,
+#receivePaper.hidden,
+#previewEnv.hidden,
+.previewEnv.hidden,
+#receiveEnv.hidden,
+#closeLetterBtn.hidden,
+#replyLetterBtn.hidden,
+#unlockArea.hidden,
+[hidden] {
+	display: none !important;
 }
